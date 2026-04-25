@@ -8,7 +8,12 @@ Frédéric DELCROIX · Xuan PENG ·
 
 Ce projet vise à prédire la durée des trajets de taxi à New York en exploitant des données temporelles (heure, jour, mois), géographiques (coordonnées GPS) et opérationnelles (nombre de passagers, fournisseur). Il s'agit d'un problème de régression : on cherche à prédire une valeur numérique continue (la durée) plutôt qu'une catégorie. La performance est mesurée par la RMSE (Root Mean Square Error), qui représente l'erreur moyenne de prédiction en minutes.
 
-Notre approche suit quatre étapes classiques en data science : (1) nettoyage et préparation des données, (2) analyse exploratoire pour comprendre les patterns, (3) feature engineering (création de nouvelles variables pertinentes), (4) test de plusieurs modèles de complexité croissante — des régressions linéaires simples aux algorithmes avancés comme XGBoost.
+Notre approche suit quatre étapes classiques en data science : 
+(1) nettoyage et préparation des données, 
+(2) analyse exploratoire pour comprendre les patterns, 
+(3) feature engineering (création de nouvelles variables pertinentes), 
+(4) test de plusieurs modèles de complexité croissante — des régressions linéaires simples aux algorithmes avancés comme XGBoost.
+
 1.2 Description des variables
 
 L'étude porte sur les données officielles des taxis jaunes de NYC en 2016 : 1 013 587 trajets pour l'entraînement et 434 330 pour le test final.
