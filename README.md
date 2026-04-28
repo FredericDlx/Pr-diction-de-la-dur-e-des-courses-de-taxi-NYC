@@ -1,103 +1,127 @@
-🚕 Prédiction de la durée des courses de taxi à NYC
+Voici la version Markdown de votre document. J'ai structuré le contenu pour conserver la hiérarchie visuelle de l'HTML tout en utilisant la syntaxe propre au Markdown pour les tableaux, les listes et les mises en forme.
 
-    De la régression linéaire aux modèles complexes > Rapport de synthèse réalisé par Frédéric DELCROIX & Xuan PENG
+---
 
-1. Introduction et jeu de données
-1.1 Objectif et méthodologie
+# 🚕 Prédiction de la durée des courses de taxi à NYC
+### *De la régression linéaire aux modèles complexes*
+**— Rapport de synthèse —**
+*Frédéric DELCROIX · Xuan PENG*
 
-Ce projet vise à prédire la durée des trajets de taxi à New York en exploitant des données temporelles, géographiques et opérationnelles.
+---
 
-    Type de problème : Régression numérique continue.
+## Table des matières
+1. [Introduction et jeu de données](#1-introduction-et-jeu-de-données)
+2. [Analyse exploratoire des données](#2-analyse-exploratoire-des-données)
+3. [Feature Engineering](#3-feature-engineering)
+4. [Préparation pour la modélisation](#4-préparation-pour-la-modélisation)
+5. [Modélisation (Machine Learning)](#5-modélisation-machine-learning)
+6. [Conclusion](#6-conclusion)
 
-    Métrique de performance : RMSE (Root Mean Square Error), exprimée en minutes.
+---
 
-Notre approche en 4 étapes :
+## 1. Introduction et jeu de données
 
-    Nettoyage et préparation des données.
+### 1.1 Objectif et méthodologie
+Ce projet vise à prédire la durée des trajets de taxi à New York en exploitant des données temporelles (heure, jour, mois), géographiques (coordonnées GPS) et opérationnelles (nombre de passagers, fournisseur). Il s'agit d'un problème de régression : on cherche à prédire une valeur numérique continue (la durée) plutôt qu'une catégorie. La performance est mesurée par la **RMSE** (Root Mean Square Error), qui représente l'erreur moyenne de prédiction en minutes.
 
-    Analyse exploratoire (EDA) pour identifier les patterns.
+Notre approche suit quatre étapes classiques en data science :
+1. Nettoyage et préparation des données.
+2. Analyse exploratoire pour comprendre les patterns.
+3. Feature Engineering (création de nouvelles variables pertinentes).
+4. Test de plusieurs modèles : des régressions linéaires simples aux algorithmes avancés comme XGBoost.
 
-    Feature Engineering pour enrichir le signal.
+### 1.2 Description des variables
+L'étude porte sur les données officielles des taxis jaunes de NYC en 2016 : **1 013 587 trajets** pour l'entraînement et **434 330** pour le test final.
 
-    Benchmark de modèles : de la régression linéaire à XGBoost.
+| Variable | Description |
+| :--- | :--- |
+| **vendor_id** | Identifiant du fournisseur (1 ou 2), répartition équilibrée 47%/53% |
+| **pickup_datetime** | Date et heure de début de course |
+| **passenger_count** | Nombre de passagers (1 à 6, la plupart des courses ont 1 passager) |
+| **pickup/dropoff_longitude/latitude** | Coordonnées GPS du point de départ et d'arrivée |
+| **store_and_fwd_flag** | Indicateur d’envoi différé de la course |
+| **trip_duration** | **Variable à prédire** : durée du trajet en secondes |
 
-1.2 Description des variables
+### 1.3 Nettoyage des données
+Le nettoyage inclut la conversion des coordonnées GPS, l'extraction de composantes temporelles et la suppression de 13 lignes avec des dates invalides. Après nettoyage : **0 doublon, 0 valeur manquante, 1 013 574 lignes exploitables**.
 
-L'étude porte sur les données officielles des taxis jaunes de NYC (2016) : 1 013 587 trajets pour l'entraînement.
-Variable	Description
-vendor_id	Identifiant fournisseur (1 ou 2)
-pickup_datetime	Date et heure de début de course
-passenger_count	Nombre de passagers (1 à 6)
-pickup/dropoff	Coordonnées GPS (Longitude/Latitude)
-trip_duration	Cible à prédire (en secondes)
-1.3 Nettoyage et Statistiques
+**Statistiques descriptives (en minutes) :**
+`Médiane : 11,1 min` | `Moyenne : 14,0 min` | `Q1 : 6,7 min` | `Q3 : 17,9 min` | `Max : 235 min`
 
-    Qualité des données : 0 doublon, 0 valeur manquante après suppression de 13 lignes invalides.
+---
 
-    Distribution de la durée (en min) :
+## 2. Analyse exploratoire des données
 
-        Médiane : 11,1 | Moyenne : 14,0 | Max : 235,0 (filtré ensuite à 60 min).
+### 2.1 Distribution de la durée des trajets
+La durée des trajets présente une distribution asymétrique : la plupart des courses durent entre 5 et 20 minutes, mais quelques valeurs extrêmes (jusqu'à 4 heures) tirent la moyenne vers le haut.
 
-2. Analyse exploratoire des données (EDA)
-2.1 Distribution et Transformation
+![Distribution de la durée des trajets](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Boxplot_vs_Hist.svg/500px-Boxplot_vs_Hist.svg.png)
+*Note : Illustration de la distribution asymétrique typique des durées de transport.*
 
-La durée des trajets est asymétrique. Une transformation logarithmique a été appliquée pour normaliser la distribution et optimiser les performances des algorithmes statistiques.
-2.2 Facteurs déterminants
+### 2.2 Effets temporels (heure, jour, mois)
+* **Heure de la journée :** Les trajets sont plus longs pendant les heures de pointe (8h et 17h-18h) en raison du trafic, et plus courts la nuit.
+* **Jour de la semaine :** Les durées moyennes augmentent progressivement du lundi au vendredi, puis chutent le week-end malgré un volume de courses élevé le samedi soir.
 
-    Saisonalité : Juin est le mois le plus chargé (+27% vs Janvier).
+### 2.3 Variables opérationnelles
+* **Nombre de passagers :** N'influence pas significativement la durée du trajet.
+* **Vendor ID :** Le fournisseur 2 semble avoir des trajets légèrement plus longs en moyenne, probablement dû à une répartition géographique différente.
 
-    Rythme hebdomadaire : Les jeudis à 18h sont les plus congestionnés (+60% de durée vs nuit).
+### 2.4 Effets spatiaux et géographiques
+L'analyse montre une forte concentration à Manhattan. Les trajets traversant les ponts ou se dirigeant vers les aéroports (JFK, LaGuardia) présentent des profils de durée distincts.
 
-    Géographie : Manhattan présente une vitesse moyenne de 13-15 km/h contre 20 km/h en périphérie.
+---
 
-3. Feature Engineering
+## 3. Feature Engineering
 
-Le gain de précision repose sur la création de variables métier :
-Famille	Variables créées	Justification
-Distances	Haversine, Manhattan	Capture la géométrie "en grille" de NYC.
-Temporel	Sin/Cos de l'heure	Préserve la continuité (23h est proche de 0h).
-Indicateurs	Rush hour, Weekend	Capture les régimes de trafic binaires.
-Interactions	Distance × Rush_hour	La distance pèse plus lourd en plein bouchon.
-4. Modélisation et Résultats
-4.1 Benchmarks Linéaires
+### 3.1 Variables construites
+Pour améliorer les modèles, nous avons créé :
+* **Distance de Manhattan (L1) et Haversine :** Calcul de la distance "à vol d'oiseau" et selon une grille urbaine.
+* **Vitesse moyenne estimée :** Pour identifier les zones de congestion.
+* **Direction du trajet :** Angle entre le départ et l'arrivée.
+* **Clustering (K-Means) :** Regroupement des coordonnées GPS en 100 zones pour capturer les spécificités locales des quartiers de NYC.
 
-Les modèles linéaires servent de base de comparaison.
-Modèle	RMSE (sec)	R²	Note
-Moyenne constante	660	—	Baseline de référence
-Régression Linéaire	388	0,69	Modèle complet avec interactions
-Elastic Net	387	0,66	Meilleur compromis linéaire
-4.2 Approche hybride : Clustering + Elastic Net
+### 3.2 Analyse des corrélations
+La corrélation la plus forte avec la durée du trajet est, sans surprise, la **distance parcourue**. Les variables temporelles (heure) montrent également un impact significatif une fois transformées.
 
-Pour capturer l'hétérogénéité spatiale, nous avons segmenté NYC en clusters (K-Means) avec un modèle par zone.
+---
 
-    Résultat : Le passage à k=100 clusters permet de réduire l'erreur de 10% par rapport au modèle global.
+## 4. Préparation pour la modélisation
+Les données ont été divisées en :
+* **Train (80%)** : Pour l'entraînement.
+* **Validation (20%)** : Pour l'ajustement des hyperparamètres.
+* **Test** : Jeu de données final séparé.
 
-4.3 Le champion : XGBoost
+---
 
-XGBoost surpasse tous les modèles grâce à sa gestion des relations non-linéaires.
+## 5. Modélisation (Machine Learning)
 
-    RMSE : 305s (≈ 5,1 min)
+### 5.1 Baselines et régression linéaire
+Le modèle de base (LM stepwise) sert de point de référence. Il capture les tendances globales mais peine sur les relations non-linéaires.
 
-    R² : 0,79
+### 5.3 Approche hybride : Clustering + Elastic Net
+En intégrant les clusters géographiques (zones de départ/arrivée), les performances s'améliorent nettement, montrant que la localisation est un prédicteur crucial.
 
-    Prédicteur n°1 : Distance log-transformée (63% du poids).
+### 5.5 Comparaison finale des modèles
 
-5. Synthèse comparative
-Modèle	RMSE Test (min)	R² Test	Performance
-Elastic Net	6,42	0,65	Standard
-Clustering + EN (k=100)	5,78	0,72	Robuste & Local
-XGBoost	5,09	0,78	Précision maximale
-6. Conclusion et Perspectives
-🏆 Choix du modèle
+| Métrique | LM (stepwise) | Lasso | Elastic Net | EN + Kmeans | **XGBoost** |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **RMSE_val_sec** | 387.806 | 387.343 | 387.253 | 341.909 | **305.003** |
+| **R2_val** | 0.659 | 0.659 | 0.660 | 0.731 | **0.789** |
+| **RMSE_test_sec** | 385.906 | 385.461 | 385.389 | 346.836 | **305.128** |
+| **R2_test** | 0.658 | 0.659 | 0.659 | 0.724 | **0.786** |
+| **RMSE_val_min** | 6.463 | 6.456 | 6.454 | 5.698 | **5.083** |
+| **RMSE_test_min** | 6.432 | 6.424 | 6.423 | 5.781 | **5.085** |
 
-    Pour la précision (App VTC) : XGBoost est le choix indiscutable.
+---
 
-    Pour l'aide à la décision urbaine : L'approche Clustering + Elastic Net offre le meilleur rapport performance/interprétabilité.
+## 6. Conclusion
 
-🚀 Pistes d'amélioration
+### 6.1 Choix du modèle selon le contexte
+* **XGBoost** est le plus précis (erreur de ~5 min), idéal pour une application de réservation.
+* **Elastic Net** est préférable pour l'interprétabilité (comprendre quels facteurs influencent le prix/temps).
 
-    Données Exogènes : Intégrer la météo et les incidents de trafic en temps réel.
+### 6.2 Limites et perspectives
+L'absence de données météo et l'état précis du trafic en temps réel limitent la précision. L'ajout de données sur le métro ou les événements spéciaux pourrait affiner les prédictions.
 
-    Spatialisation : Utiliser le système de grille H3 (Uber) pour une segmentation géographique plus fine que le K-Means.
-
-    Deep Learning : Tester des réseaux de neurones récurrents (LSTM) pour les séries temporelles.
+### 6.3 Conclusion générale
+Le passage d'une régression simple à un modèle de gradient boosting (**XGBoost**) a permis de réduire l'erreur de prédiction de près de **21%**. Le *feature engineering* (notamment la distance et les clusters) s'est avéré plus impactant que le choix de l'algorithme lui-même.
