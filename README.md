@@ -1,5 +1,3 @@
-Voici la version Markdown de votre document. J'ai structuré le contenu pour conserver la hiérarchie visuelle de l'HTML tout en utilisant la syntaxe propre au Markdown pour les tableaux, les listes et les mises en forme.
-
 ---
 
 # 🚕 Prédiction de la durée des courses de taxi à NYC
