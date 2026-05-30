@@ -1,7 +1,7 @@
 
 ---
 
-# 🚕 Prédiction de la durée des courses de taxi à NYC
+# Prédiction de la durée des courses de taxi à NYC
 ### *De la régression linéaire aux modèles complexes*
 **— Rapport de synthèse —**
 *Frédéric DELCROIX · Xuan PENG*
