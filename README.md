@@ -5,8 +5,9 @@
 ### *De la régression linéaire aux modèles complexes*
 **— Rapport de synthèse —**
 *Frédéric DELCROIX · Xuan PENG*
-
 ---
+
+Le rapport complet est dispobnible içi https://fredericdlx.github.io/Prediction-de-la-dur-e-des-courses-de-taxi-NYC/PredictionTaxisNY.html
 
 ## Table des matières
 1. [Introduction et jeu de données](#1-introduction-et-jeu-de-données)
