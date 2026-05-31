@@ -54,9 +54,6 @@ Le nettoyage inclut la conversion des coordonnées GPS, l'extraction de composan
 ### 2.1 Distribution de la durée des trajets
 La durée des trajets présente une distribution asymétrique : la plupart des courses durent entre 5 et 20 minutes, mais quelques valeurs extrêmes (jusqu'à 4 heures) tirent la moyenne vers le haut.
 
-![Distribution de la durée des trajets](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Boxplot_vs_Hist.svg/500px-Boxplot_vs_Hist.svg.png)
-*Note : Illustration de la distribution asymétrique typique des durées de transport.*
-
 ### 2.2 Effets temporels (heure, jour, mois)
 * **Heure de la journée :** Les trajets sont plus longs pendant les heures de pointe (8h et 17h-18h) en raison du trafic, et plus courts la nuit.
 * **Jour de la semaine :** Les durées moyennes augmentent progressivement du lundi au vendredi, puis chutent le week-end malgré un volume de courses élevé le samedi soir.
